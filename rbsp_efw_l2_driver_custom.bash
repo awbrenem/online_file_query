@@ -29,13 +29,14 @@ starttime=`date +%s`
 # update the skeleton CDFs in the l2/xxxx/0000/ dirs
 #./rbsp_update_l2_skeleton.bash
 
-i=1435
-istop=1435
-bp_rbspa=34  #boom pair
+i=1916
+istop=1916
+bp_rbspa=12
 bp_rbspb=12
 version=2
-bad_probe_rbspa=1
+bad_probe_rbspa=0
 bad_probe_rbspb=0
+type=e-spinfit-mgse
 
 TTAG=`date +%s`
 TEMPDIR="$HOME/l2temp.$TTAG"
@@ -45,26 +46,23 @@ while [ $i -le $istop ]; do
 	let newdate=starttime-i*86400
 	yyyy=`date -j -f "%s" +%Y $newdate`
 	doy=`date -j -f "%s" +%j $newdate`
-
-#---------------------------
-#	for p in a b; do	
-#---------------------------
-        for p in a; do
+	
+	for p in b; do
 
 		PROBE=$p
 
-                if [ "$PROBE" == "a" ]; then
-                        bp="$bp_rbspa"
+		if [ "$PROBE" == "a" ]; then
+			bp="$bp_rbspa"
 			bad_probe="$bad_probe_rbspa"
-                else
-                        bp="$bp_rbspb"
+		else
+			bp="$bp_rbspb"
 			bad_probe="$bad_probe_rbspb"
-                fi
+		fi
 
 
 		OUTLOG=$HOME/RBSP_l2/log/rbsp_efw_l2_driver_custom_${yyyy}-${doy}_rbsp${PROBE}_output.log
 		/Applications/exelis/idl/bin/idl rbsp_efw_l2_driver_custom -args \
-		$yyyy $doy $PROBE $TEMPDIR $bp $version $bad_probe 2>&1 | grep -v STORE_DATA --line-buffered \
+		$yyyy $doy $PROBE $type $TEMPDIR $bp $version $bad_probe 2>&1 | grep -v STORE_DATA --line-buffered \
 		| grep -v Processing --line-buffered \
 		| grep -v GEOPACK_RECALC --line-buffered &>$OUTLOG
 
@@ -83,4 +81,3 @@ while [ $i -le $istop ]; do
 done
 
 /bin/rm -vrf $TEMPDIR
-
